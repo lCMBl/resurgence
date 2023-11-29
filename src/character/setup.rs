@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_panorbit_camera::PanOrbitCamera;
 use bevy_rapier3d::prelude::*;
 use bevy_tnua::builtins::{
     TnuaBuiltinCrouch, TnuaBuiltinDash,
@@ -14,28 +15,25 @@ use bevy_tnua::{
 };
 use bevy_tnua_rapier3d::*;
 
-pub fn setup_camera(mut commands: Commands) {
-    commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(0.0, 16.0, 40.0)
-            .looking_at(Vec3::new(0.0, 10.0, 3.0), Vec3::Y),
-        ..Default::default()
-    });
 
-    commands.spawn(PointLightBundle {
-        transform: Transform::from_xyz(5.0, 5.0, 5.0),
-        ..default()
-    });
+#[derive(Component)]
+pub struct PlayerCamTarget;
 
-    commands.spawn(DirectionalLightBundle {
-        directional_light: DirectionalLight {
-            illuminance: 4000.0,
-            // For some reason in Bevy 0.12 shadows no longer work in WASM
-            shadows_enabled: !cfg!(target_arch = "wasm32"),
+#[derive(Component)]
+pub struct PlayerFollowCam;
+
+pub fn setup_camera(
+    mut commands: Commands,
+) {
+    commands.spawn((
+        Camera3dBundle {
+            transform: Transform::from_xyz(0.0, 16.0, 40.0)
+                .looking_at(Vec3::new(0.0, 10.0, 3.0), Vec3::Y),
             ..Default::default()
         },
-        transform: Transform::default().looking_at(-Vec3::Y, Vec3::Z),
-        ..Default::default()
-    });
+        PlayerFollowCam,
+        PanOrbitCamera::default(),
+    ));
 }
 
 pub fn setup_player(
@@ -92,6 +90,8 @@ pub fn setup_player(
     cmd.insert(TnuaSimpleAirActionsCounter::default());
     cmd.insert(FallingThroughControlScheme::default());
     cmd.insert(TnuaAnimatingState::<AnimationState>::default());
+
+    cmd.insert(PlayerCamTarget);
     
 }
 

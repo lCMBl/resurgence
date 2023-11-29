@@ -6,6 +6,22 @@ pub fn setup_level(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+    commands.spawn(PointLightBundle {
+        transform: Transform::from_xyz(5.0, 5.0, 5.0),
+        ..default()
+    });
+
+    commands.spawn(DirectionalLightBundle {
+        directional_light: DirectionalLight {
+            illuminance: 4000.0,
+            // For some reason in Bevy 0.12 shadows no longer work in WASM
+            shadows_enabled: !cfg!(target_arch = "wasm32"),
+            ..Default::default()
+        },
+        transform: Transform::default().looking_at(-Vec3::Y, Vec3::Z),
+        ..Default::default()
+    });
+    
     let mut cmd = commands.spawn_empty();
     cmd.insert(PbrBundle {
         mesh: meshes.add(Mesh::from(shape::Plane {

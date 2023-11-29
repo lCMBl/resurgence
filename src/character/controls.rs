@@ -12,7 +12,12 @@ use bevy_tnua::{
     TnuaProximitySensor,
 };
 
-use super::{CharacterMotionConfigForPlatformerExample, FallingThroughControlScheme};
+use super::{
+    CharacterMotionConfigForPlatformerExample,
+    FallingThroughControlScheme,
+    PlayerCamTarget,
+    PlayerFollowCam,
+};
 
 pub fn apply_controls(
     keyboard: Res<Input<KeyCode>>,
@@ -30,16 +35,16 @@ pub fn apply_controls(
 
     let mut direction = Vec3::ZERO;
 
-    if keyboard.pressed(KeyCode::Up) {
+    if keyboard.pressed(KeyCode::W) {
         direction -= Vec3::Z;
     }
-    if keyboard.pressed(KeyCode::Down) {
+    if keyboard.pressed(KeyCode::S) {
         direction += Vec3::Z;
     }
-    if keyboard.pressed(KeyCode::Left) {
+    if keyboard.pressed(KeyCode::A) {
         direction -= Vec3::X;
     }
-    if keyboard.pressed(KeyCode::Right) {
+    if keyboard.pressed(KeyCode::D) {
         direction += Vec3::X;
     }
 
