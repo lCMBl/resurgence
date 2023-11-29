@@ -19,6 +19,8 @@ use super::{
     PlayerFollowCam,
 };
 
+use bevy_panorbit_camera::PanOrbitCamera;
+
 pub fn apply_controls(
     keyboard: Res<Input<KeyCode>>,
     mut query: Query<(
@@ -31,22 +33,38 @@ pub fn apply_controls(
         &FallingThroughControlScheme,
         &mut TnuaSimpleAirActionsCounter,
     )>,
+    cam_query: Query<&Transform, With<PlayerFollowCam>>,
 ) {
 
     let mut direction = Vec3::ZERO;
 
+    let mut flat_forward = -Vec3::Z;
+    let mut flat_right = Vec3::X;
+
+    if let Ok(cam_transform) = cam_query.get_single() {
+        flat_forward = cam_transform.forward();
+        flat_forward.y = 0.0;
+        flat_forward = flat_forward.normalize();
+        
+        flat_right = cam_transform.right();
+        flat_right.y = 0.0;
+        flat_right = flat_right.normalize();
+    }
+
     if keyboard.pressed(KeyCode::W) {
-        direction -= Vec3::Z;
+        direction += flat_forward;
     }
     if keyboard.pressed(KeyCode::S) {
-        direction += Vec3::Z;
+        direction -= flat_forward;
     }
     if keyboard.pressed(KeyCode::A) {
-        direction -= Vec3::X;
+        direction -= flat_right;
     }
     if keyboard.pressed(KeyCode::D) {
-        direction += Vec3::X;
+        direction += flat_right;
     }
+
+
 
     direction = direction.clamp_length_max(1.0);
 
@@ -122,6 +140,18 @@ pub fn apply_controls(
                     <= config.actions_in_air,
                 ..config.dash.clone()
             });
+        }
+    }
+}
+
+pub fn camera_follow(
+    player_query: Query<&Transform, With<PlayerCamTarget>>,
+    mut camera_query: Query<&mut PanOrbitCamera, With<PlayerFollowCam>>,
+) {
+    if let Ok(player) = player_query.get_single() {
+        if let Ok(mut camera) = camera_query.get_single_mut() {
+            camera.target_focus = player.translation;
+            // camera.target_radius = 15.0; // target radius only necessary if zoom is disabled.
         }
     }
 }

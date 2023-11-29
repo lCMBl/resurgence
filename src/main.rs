@@ -8,7 +8,7 @@ use bevy_panorbit_camera::PanOrbitCameraPlugin;
 mod character;
 mod map;
 
-use character::{setup_camera, setup_player, apply_controls,};
+use character::{setup_camera, setup_player, apply_controls, camera_follow};
 use map::setup_level;
 
 fn main() {
@@ -23,5 +23,7 @@ fn main() {
         .add_systems(Startup, setup_level)
         .add_systems(Startup, setup_player)
         .add_systems(Update, apply_controls.in_set(TnuaUserControlsSystemSet))
+
+        .add_systems(Update, camera_follow)
         .run();
 }
